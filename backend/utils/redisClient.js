@@ -1,8 +1,8 @@
 const redis = require('redis');
-console.log("Attempting to connect to redis");
-const { createClient } = redis;
-//also use redis.createClient instead of createClient 
-const client = createClient({
+
+console.log("Attempting to connect to Redis...");
+
+const client = redis.createClient({
      username: 'default',
      password: process.env.REDIS_PASSWORD,
      socket: {
@@ -11,15 +11,17 @@ const client = createClient({
      }
 });
 
-client.on('connect', () => console.log('Redis Client Connected'));
+client.on('connect', () => console.log('✅ Redis Client Connected'));
+client.on('error', (err) => console.error('❌ Redis Client Error:', err));
 
-client.on('error', err => console.log('Redis Client Error', err));
-
-client.connect();
-
-// await client.set('foo', 'bar');
-// const result = await client.get('foo');
-// console.log(result)  // >>> bar
+// Ensure Redis is connected before exporting
+(async () => {
+     try {
+          await client.connect();
+          console.log('🚀 Redis connection established.');
+     } catch (err) {
+          console.error('❌ Failed to connect to Redis:', err);
+     }
+})();
 
 module.exports = client;
-
